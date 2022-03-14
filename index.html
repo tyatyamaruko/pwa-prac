@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- アドレスバー等のブラウザのUIを非表示 -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <!-- default（Safariと同じ） / black（黒） / black-translucent（ステータスバーをコンテンツに含める） -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <!-- ホーム画面に表示されるアプリ名 -->
+    <meta name="apple-mobile-web-app-title" content="TAP10">
+    <!-- ホーム画面に表示されるアプリアイコン -->
+    <link rel="apple-touch-icon" href="images/icons/icon-152x152.png">
+    <title>TAP10</title>
+
+    <!-- ウェブアプリマニフェストの読み込み -->
+    <link rel="manifest" href="manifest.json">
+    <!-- ServiceWorkerの登録 -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+                .then((reg) => {
+                    console.log('Service worker registered.', reg);
+                });
+        }
+    </script>
+
+    <style>
+        @charset 'UTF-8';
+        html {
+            font-family: sans-serif;
+            touch-action: manipulation;
+        }
+        
+        .container {
+            padding: 15px;
+            max-width: 400px;
+            margin: 0 auto;
+            text-align: center;
+            font-size: 16px;
+        }
+        
+        .title {
+            font-size: 20px;
+            margin: 10px 0 20px;
+        }
+        
+        .btn-tap {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            color: #fff;
+            background-color: #a0ce00;
+            border: none;
+            outline: none;
+            font-size: 20px;
+            margin-bottom: 30px;
+            cursor: pointer;
+        }
+        
+        .btn-tap:disabled {
+            background-color: #ddd;
+            color: #aaa;
+        }
+        
+        .btn-tap span {
+            font-size: 60px;
+        }
+        
+        .btn {
+            display: inline-block;
+            margin: 30px 0 0;
+            padding: 15px 60px;
+            border: none;
+            border-radius: 10px;
+            background-color: #54bbc1;
+            font-size: 18px;
+            color: #fff;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .time span {
+            display: inline-block;
+            width: 50px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+    <section class="container">
+        <h1 class="title">10秒で何回タップできるか</h1>
+        <button id="js-tapBtn" class="btn-tap" disabled>
+    <span id="js-count"></span><br>タップ!!
+  </button>
+        <div class="time">残り時間 <span id="js-time"></span> 秒</div>
+        <button id="js-startBtn" class="btn">START</button>
+    </section>
+
+    <script>
+        // 変数定義
+        let isPlaying = false
+        let tapCount, time = 0
+        const tapBtn = document.getElementById('js-tapBtn')
+        const startBtn = document.getElementById('js-startBtn')
+        const countText = document.getElementById('js-count')
+        const timeText = document.getElementById('js-time')
+
+        // ゲームの初期値設定
+        const setGame = () => {
+            tapCount = 0
+            time = 10000
+            countText.innerText = tapCount
+            timeText.innerHTML = time / 1000
+        }
+        setGame()
+
+        // タップした時にカウントを増やす
+        tapBtn.addEventListener('click', () => {
+            if (!isPlaying) return false
+            tapCount++
+            countText.innerText = tapCount
+        })
+
+        // STARTボタンを押してゲームをスタートさせる
+        startBtn.addEventListener('click', () => {
+            setGame()
+            isPlaying = true
+            tapBtn.disabled = false
+            startBtn.style.display = 'none'
+
+            const timer = setInterval(() => {
+                time -= 10
+                timeText.innerHTML = (time / 1000).toFixed(2)
+
+                if (time === 0) {
+                    clearInterval(timer)
+                    isPlaying = false
+                    startBtn.style.display = 'inline-block'
+                    startBtn.innerText = 'もう一回'
+                }
+            }, 10)
+        })
+    </script>
+</body>
+
+</html>
